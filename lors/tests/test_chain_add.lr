@@ -1,0 +1,8 @@
+algorithm genesis() -> whole
+begin
+    datum a : precise = 1.0;
+    datum b : precise = 2.0;
+    datum c : precise = 3.0;
+    reveal(a + b + c);
+    result 0;
+end

@@ -1,0 +1,99 @@
+# Define la ubicación de tu compilador (NUEVO COMPILADOR NATIVO)
+COMPILER = ./lors_lw
+
+# Directorios que contienen los archivos fuente Y los ejecutables
+EXAMPLES_DIR = lors/examples
+TESTS_DIR = lors/tests
+
+# --- Definición de Fuentes y Objetivos ---
+
+# 1. Lista de todos los archivos fuente (.lr), excluyendo shared.inc
+EXAMPLES_SOURCES := $(wildcard $(EXAMPLES_DIR)/*.lr)
+TESTS_SOURCES := $(filter-out $(TESTS_DIR)/shared.inc, $(wildcard $(TESTS_DIR)/*.lr))
+
+# 2. Lista de ejecutables (NOMBRES sin la extensión .lr y prefijados con su directorio fuente)
+EXECUTABLES_FULL_PATH := $(patsubst %.lr, %, $(EXAMPLES_SOURCES))
+EXECUTABLES_FULL_PATH += $(patsubst %.lr, %, $(TESTS_SOURCES))
+
+# ==============================================================================
+# Reglas Principales
+# ==============================================================================
+
+.PHONY: all clean examples tests run test lors_lw
+
+# Regla 'all': Compila el compilador y luego los tests.
+all: lors_lw test
+
+# Regla para compilar el compilador self-hosted
+lors_lw:
+	@echo "Compilando lors_lw usando ./twin ..."
+	./twin lors_lw_src/lors_lw.lr
+	mv lors_lw_src/lors_lw .
+	chmod +x lors_lw
+
+# ==============================================================================
+# Reglas de Compilación Genéricas (Compila y guarda en el mismo directorio)
+# ==============================================================================
+
+# Regla 'test': Itera sobre todos los tests y ejemplos, compila a .ll, luego a exe, y ejecuta.
+test: lors_lw
+	@echo "=========================================================="
+	@echo "🚀 INICIANDO SUITE DE PRUEBAS COMPLETA (LLVM BACKEND)"
+	@echo "=========================================================="
+	@failed=0; \
+	for src in $(EXAMPLES_SOURCES) $(TESTS_SOURCES); do \
+		echo "Testing $$src ..."; \
+		base=$${src%.lr}; \
+		ll_file=$$base.ll; \
+		exe_file=$$base; \
+		\
+		# 1. Compile .lr -> .ll using lors_lw \
+		./lors_lw $$src; \
+		if [ $$? -ne 0 ]; then \
+			echo "❌ Fallo compilación lors_lw para $$src"; \
+			failed=1; \
+			continue; \
+		fi; \
+		\
+		# 2. Compile .ll -> exe using clang \
+		clang $$ll_file -o $$exe_file -lm; \
+		if [ $$? -ne 0 ]; then \
+			echo "❌ Fallo compilación Clang para $$ll_file"; \
+			failed=1; \
+			continue; \
+		fi; \
+		\
+		# 3. Run Executable \
+		echo "Ejecutando $$exe_file ..."; \
+		chmod +x $$exe_file; \
+		if echo "$$exe_file" | grep -q "test_calculator"; then \
+			printf "1\n10\n20\n" | ./$$exe_file; \
+		elif echo "$$exe_file" | grep -q "test_string_input"; then \
+			printf "HelloInput\n" | ./$$exe_file; \
+		elif echo "$$exe_file" | grep -q "test_cli_args_basic"; then \
+			./$$exe_file arg1 arg2; \
+		elif echo "$$exe_file" | grep -q "test_cli_args_usage"; then \
+			./$$exe_file myargument; \
+		else \
+			./$$exe_file; \
+		fi; \
+		\
+		if [ $$? -ne 0 ]; then \
+			echo "❌ Error en ejecución de $$exe_file"; \
+			failed=1; \
+		else \
+			echo "[OK] $$src "; \
+		fi; \
+		echo ""; \
+	done; \
+	if [ $$failed -ne 0 ]; then \
+		echo "⚠️ ALGUNOS TESTS FALLARON"; \
+		exit 1; \
+	else \
+		echo "[ALL TESTS WERE PASSED SUCCESSFULLY]"; \
+	fi
+
+clean:
+	@echo "🧹 Limpiando ejecutables..."
+	-rm -f $(EXECUTABLES_FULL_PATH)
+

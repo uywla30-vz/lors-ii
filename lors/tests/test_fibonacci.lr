@@ -1,0 +1,16 @@
+algorithm genesis() -> whole
+begin
+    datum a : whole = 0;
+    datum b : whole = 1;
+    datum temp : whole = 0;
+    datum i : whole = 0;
+
+    cycle (i < 10) do
+        reveal(a);
+        temp = a + b;
+        a = b;
+        b = temp;
+        i = i + 1;
+    conclude
+    result 0;
+end

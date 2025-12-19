@@ -1,0 +1,8 @@
+algorithm genesis() -> whole
+begin
+    reveal("Enter a word:");
+    datum s : series = inquire();
+    reveal("You typed:");
+    reveal(s);
+    result 0;
+end

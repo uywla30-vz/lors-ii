@@ -1,0 +1,7 @@
+algorithm genesis() -> whole
+begin
+    datum a : precise = 2.0;
+    datum b : precise = 3.0;
+    reveal(power(a, b)); // 8.0
+    result 0;
+end

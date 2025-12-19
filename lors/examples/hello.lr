@@ -1,0 +1,21 @@
+algorithm genesis() -> whole
+begin
+    reveal("Hello, Lors!");
+    datum x : whole = 10;
+    datum y : whole = 20;
+    reveal(x + y);
+
+    verify (x < y) then
+        reveal("x is smaller");
+    otherwise
+        reveal("x is bigger");
+    conclude
+
+    datum i : whole = 0;
+    cycle (i < 5) do
+        reveal(i);
+        i = i + 1;
+    conclude
+
+    result 0;
+end

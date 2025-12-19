@@ -1,0 +1,22 @@
+algorithm genesis() -> whole
+begin
+    datum condition : state = true;
+
+    verify (condition) then
+        reveal("Condition is true");
+    otherwise
+        reveal("Condition is false");
+    conclude
+
+    datum count : whole = 0;
+    cycle (count < 3) do
+        reveal("Looping...");
+        count = count + 1;
+    conclude
+
+    verify (count == 3) then
+        reveal("Loop finished");
+    conclude
+
+    result 0;
+end

@@ -1,0 +1,8 @@
+algorithm genesis() -> whole
+begin
+    datum val : whole = 10 + 20 * 30;
+    verify (val == 610) then
+        reveal("Order of ops correct");
+    conclude
+    result 0;
+end

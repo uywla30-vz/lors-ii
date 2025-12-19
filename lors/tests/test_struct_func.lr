@@ -1,0 +1,27 @@
+structure Vector
+begin
+    datum x : whole;
+    datum y : whole;
+end
+
+algorithm add_vectors(v1 : Vector, v2 : Vector) -> Vector
+begin
+    datum res : Vector = Vector(v1.x + v2.x, v1.y + v2.y);
+    result res;
+end
+
+algorithm genesis() -> whole
+begin
+    datum a : Vector = Vector(1, 2);
+    datum b : Vector = Vector(3, 4);
+    datum c : Vector = add_vectors(a, b);
+
+    reveal(c.x);
+    reveal(c.y);
+
+    verify (c.x == 4 and c.y == 6) then
+        reveal("Struct Func Pass");
+    conclude
+
+    result 0;
+end

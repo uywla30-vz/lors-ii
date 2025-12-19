@@ -1,0 +1,20 @@
+structure Config
+begin
+    datum host : series;
+    datum port : whole;
+end
+
+algorithm genesis() -> whole
+begin
+    datum c : Config = Config("localhost", 8080);
+
+    // Serialization (manual)
+    datum data : series = c.host + ":" + to_string(c.port);
+    file_write("config.save", data);
+
+    datum read : series = file_read("config.save");
+    reveal(read); // localhost:8080
+
+    file_remove("config.save");
+    result 0;
+end

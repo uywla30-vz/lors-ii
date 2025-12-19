@@ -1,0 +1,14 @@
+algorithm genesis() -> whole
+begin
+    datum f : series = "exist_check.tmp";
+    file_write(f, "content");
+
+    verify (file_exists(f)) then
+        reveal("File exists");
+    otherwise
+        reveal("File missing");
+    conclude
+
+    file_remove(f);
+    result 0;
+end

@@ -1,0 +1,7 @@
+algorithm genesis() -> whole
+begin
+    verify (not false) then
+        reveal("Correct");
+    conclude
+    result 0;
+end

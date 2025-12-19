@@ -1,0 +1,17 @@
+algorithm genesis() -> whole
+begin
+    datum s_int : series = "100";
+    datum s_float : series = "12.5";
+
+    datum val_int : whole = to_integer(s_int);
+    datum val_float : precise = to_precise(s_float);
+
+    datum res : precise = val_int + val_float;
+    reveal(res); // 112.5
+
+    verify (res == 112.5) then
+        reveal("Mixed Parse Pass");
+    conclude
+
+    result 0;
+end

@@ -1,0 +1,24 @@
+structure Inner
+begin
+    datum val : whole;
+end
+
+structure Outer
+begin
+    datum in : Inner;
+    datum id : whole;
+end
+
+algorithm genesis() -> whole
+begin
+    datum inner : Inner = Inner(42);
+    datum outer : Outer = Outer(inner, 1);
+
+    reveal(outer.in.val);
+
+    verify (outer.in.val == 42) then
+        reveal("Struct Nested Pass");
+    conclude
+
+    result 0;
+end

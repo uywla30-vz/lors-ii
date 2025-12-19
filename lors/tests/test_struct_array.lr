@@ -1,0 +1,18 @@
+structure Item
+begin
+    datum id : whole;
+end
+
+algorithm genesis() -> whole
+begin
+    datum list : sequence<Item> = [Item(1), Item(2)];
+
+    reveal(list[0].id);
+    reveal(list[1].id);
+
+    verify (list[0].id == 1) then
+        reveal("Struct Array Pass");
+    conclude
+
+    result 0;
+end

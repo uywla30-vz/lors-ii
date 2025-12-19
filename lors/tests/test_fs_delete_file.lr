@@ -1,0 +1,13 @@
+algorithm genesis() -> whole
+begin
+    datum f : series = "del_check.tmp";
+    file_write(f, "data");
+
+    file_remove(f);
+
+    verify (not file_exists(f)) then
+        reveal("File deleted");
+    conclude
+
+    result 0;
+end

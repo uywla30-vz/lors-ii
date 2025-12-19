@@ -1,0 +1,13 @@
+algorithm genesis() -> whole
+begin
+    datum r : precise = 5.0;
+    datum area : precise = 3.14159 * power(r, 2.0);
+
+    file_write("area.txt", to_string(area));
+
+    datum read : series = file_read("area.txt");
+    reveal(read);
+
+    file_remove("area.txt");
+    result 0;
+end

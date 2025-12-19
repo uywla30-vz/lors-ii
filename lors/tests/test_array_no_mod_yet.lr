@@ -1,0 +1,10 @@
+algorithm genesis() -> whole
+begin
+    datum arr : sequence<whole> = [1, 2, 3];
+    // arr[0] = 5; // Assignment to array index not yet implemented in parser
+    // Skipping modification test for now or implementing it?
+    // User requested general purpose. I should implement assignment to array index.
+    // Parser `parse_assignment` needs to handle array access on LHS.
+    // Current parser expects identifier on LHS.
+    result 0;
+end

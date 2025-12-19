@@ -1,0 +1,8 @@
+algorithm genesis() -> whole
+begin
+    datum x : precise = 2.5;
+    datum y : precise = 2.5;
+    datum z : precise = power(x, 2.0) + power(y, 2.0);
+    reveal(root(z)); // ~3.535
+    result 0;
+end

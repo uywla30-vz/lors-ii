@@ -1,0 +1,40 @@
+algorithm genesis() -> whole
+begin
+    reveal("Enter operation (1=add, 2=sub, 3=mul, 4=div):");
+    datum op : whole = inquire();
+
+    reveal("Enter first number:");
+    datum a : precise = inquire();
+
+    reveal("Enter second number:");
+    datum b : precise = inquire();
+
+    datum res : precise = 0.0;
+
+    verify (op == 1) then
+        res = a + b;
+    otherwise
+        verify (op == 2) then
+            res = a - b;
+        otherwise
+            verify (op == 3) then
+                res = a * b;
+            otherwise
+                verify (op == 4) then
+                     // Prevent div by zero?
+                     verify (absolute(b) < 0.0001) then
+                         reveal("Error: Division by zero");
+                     otherwise
+                         res = a / b;
+                     conclude
+                otherwise
+                    reveal("Unknown operation");
+                conclude
+            conclude
+        conclude
+    conclude
+
+    reveal("Result:");
+    reveal(res);
+    result 0;
+end

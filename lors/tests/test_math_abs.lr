@@ -1,0 +1,6 @@
+algorithm genesis() -> whole
+begin
+    datum a : precise = -10.5;
+    reveal(absolute(a)); // 10.5
+    result 0;
+end

@@ -1,0 +1,11 @@
+algorithm genesis() -> whole
+begin
+    datum moles : precise = 2.0;
+    datum molar_mass : precise = 18.015; // Water
+    datum mass : precise = moles * molar_mass;
+
+    reveal("Mass of water:");
+    reveal(mass); // 36.03
+
+    result 0;
+end

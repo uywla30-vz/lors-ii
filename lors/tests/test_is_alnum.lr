@@ -1,0 +1,20 @@
+algorithm genesis() -> whole
+begin
+    datum c1 : whole = 65; // 'A'
+    datum c2 : whole = 50; // '2'
+    datum c3 : whole = 33; // '!'
+
+    verify (is_alnum(c1)) then
+        reveal("A is alnum");
+    conclude
+
+    verify (is_alnum(c2)) then
+        reveal("2 is alnum");
+    conclude
+
+    verify (not is_alnum(c3)) then
+        reveal("! is not alnum");
+    conclude
+
+    result 0;
+end

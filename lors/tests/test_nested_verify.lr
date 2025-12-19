@@ -1,0 +1,10 @@
+algorithm genesis() -> whole
+begin
+    datum x : whole = 10;
+    verify (x > 5) then
+        verify (x < 15) then
+            reveal("Inside range");
+        conclude
+    conclude
+    result 0;
+end

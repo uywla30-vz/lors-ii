@@ -1,0 +1,14 @@
+algorithm genesis() -> whole
+begin
+    datum i : whole = 0;
+    datum j : whole = 0;
+    cycle (i < 3) do
+        j = 0;
+        cycle (j < 2) do
+            reveal(i * 10 + j);
+            j = j + 1;
+        conclude
+        i = i + 1;
+    conclude
+    result 0;
+end

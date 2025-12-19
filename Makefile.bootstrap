@@ -1,0 +1,69 @@
+# Makefile for Bootstrapping Lors
+
+PYTHON = python3
+COMPILER_PY = compiler.py
+SELF_COMPILER_SRC = lors_bootstrap.lr
+SELF_COMPILER_BIN = ./lors_bootstrap
+
+# Existing tests
+SOURCES = $(wildcard lors/examples/*.lr) $(wildcard lors/tests/*.lr)
+EXECUTABLES = $(SOURCES:.lr=)
+
+.PHONY: all bootstrap test_bootstrap clean
+
+# 1. Compile the self-hosted compiler using Python compiler
+bootstrap: $(SELF_COMPILER_BIN)
+
+$(SELF_COMPILER_BIN): $(SELF_COMPILER_SRC)
+	@echo "Bootstrapping: Compiling lors_bootstrap.lr with Python compiler..."
+	$(PYTHON) $(COMPILER_PY) $(SELF_COMPILER_SRC)
+
+# 2. Compile all tests using the self-hosted compiler
+# We use a pattern rule that depends on the self-compiler
+%.bin: %.lr $(SELF_COMPILER_BIN)
+	@echo "Compiling $< with self-hosted compiler..."
+	$(SELF_COMPILER_BIN) $<
+
+test_bootstrap: bootstrap
+	@echo "Running verification with self-hosted compiler..."
+	@failed=0; \
+	for src in $(SOURCES); do \
+		exe=$${src%.lr}; \
+		echo "----------------------------------------"; \
+		echo "Compiling $$src"; \
+		$(SELF_COMPILER_BIN) $$src; \
+		if [ $$? -ne 0 ]; then \
+			echo "COMPILATION FAILED: $$src"; \
+			failed=1; \
+			continue; \
+		fi; \
+		echo "Running $$exe"; \
+		if echo "$$exe" | grep -q "test_calculator"; then \
+			printf "1\n10\n20\n" | ./$$exe; \
+		elif echo "$$exe" | grep -q "test_string_input"; then \
+			printf "HelloInput\n" | ./$$exe; \
+		elif echo "$$exe" | grep -q "test_cli_args_basic"; then \
+			./$$exe arg1 arg2; \
+		elif echo "$$exe" | grep -q "test_cli_args_usage"; then \
+			./$$exe myargument; \
+		else \
+			./$$exe; \
+		fi; \
+		if [ $$? -ne 0 ]; then \
+			echo "EXECUTION FAILED: $$exe"; \
+			failed=1; \
+		fi; \
+	done; \
+	if [ $$failed -eq 0 ]; then \
+		echo "----------------------------------------"; \
+		echo "BOOTSTRAP SUCCESSFUL: All tests passed."; \
+	else \
+		echo "----------------------------------------"; \
+		echo "BOOTSTRAP FAILED"; \
+		exit 1; \
+	fi
+
+clean:
+	rm -f lors_bootstrap.cpp
+	rm -f $(EXECUTABLES)
+	rm -f lors/examples/*.cpp lors/tests/*.cpp

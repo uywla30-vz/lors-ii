@@ -1,0 +1,15 @@
+algorithm genesis() -> whole
+begin
+    datum path : series = env_get("PATH");
+    // PATH should exist on linux
+    verify (length(path) > 0) then
+        reveal("Read PATH env");
+    conclude
+
+    datum missing : series = env_get("NON_EXISTENT_VAR_XYZ");
+    verify (length(missing) == 0) then
+        reveal("Handled missing env");
+    conclude
+
+    result 0;
+end

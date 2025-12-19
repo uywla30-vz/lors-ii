@@ -1,0 +1,5 @@
+algorithm genesis() -> whole
+begin
+    execute_system("echo 'System command works'");
+    result 0;
+end

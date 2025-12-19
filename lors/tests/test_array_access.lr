@@ -1,0 +1,6 @@
+algorithm genesis() -> whole
+begin
+    datum arr : sequence<whole> = [10, 20, 30];
+    reveal(arr[1]); // 20
+    result 0;
+end

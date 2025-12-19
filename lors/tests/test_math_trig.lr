@@ -1,0 +1,7 @@
+algorithm genesis() -> whole
+begin
+    datum a : precise = 0.0;
+    reveal(sine(a)); // 0
+    reveal(cosine(a)); // 1
+    result 0;
+end

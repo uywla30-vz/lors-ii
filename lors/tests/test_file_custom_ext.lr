@@ -1,0 +1,11 @@
+algorithm genesis() -> whole
+begin
+    datum filename : series = "config.customext";
+    file_write(filename, "key=value");
+
+    datum data : series = file_read(filename);
+    reveal(data);
+
+    execute_system("rm config.customext");
+    result 0;
+end

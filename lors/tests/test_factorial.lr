@@ -1,0 +1,12 @@
+algorithm genesis() -> whole
+begin
+    datum n : whole = 5;
+    datum res : whole = 1;
+    // factorial
+    cycle (n > 1) do
+        res = res * n;
+        n = n - 1;
+    conclude
+    reveal(res);
+    result 0;
+end

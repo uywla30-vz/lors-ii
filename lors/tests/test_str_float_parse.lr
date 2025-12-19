@@ -1,0 +1,20 @@
+algorithm genesis() -> whole
+begin
+    datum s : series = "3.14159";
+    datum pi : precise = to_precise(s);
+
+    reveal(pi); // 3.14159
+
+    // Check math logic with it
+    datum double_pi : precise = pi * 2.0;
+    reveal(double_pi); // ~6.28318
+
+    // Check logic
+    verify (pi > 3.0 and pi < 3.2) then
+        reveal("Parse Float Pass");
+    otherwise
+        reveal("Parse Float Fail");
+    conclude
+
+    result 0;
+end

@@ -1,0 +1,12 @@
+*.s
+lors/examples/*
+!lors/examples/*.lr
+lors/tests/*
+!lors/tests/*.lr
+!lors/tests/*.inc
+*.s
+lors/examples/*
+!lors/examples/*.lr
+lors/tests/*
+!lors/tests/*.lr
+!lors/tests/*.inc

@@ -1,0 +1,76 @@
+incorporate "self_compiler/sc_tokens.inc"
+incorporate "self_compiler/sc_ast.inc"
+incorporate "self_compiler/sc_utils.inc"
+incorporate "self_compiler/sc_lexer.inc"
+incorporate "self_compiler/sc_parser.inc"
+incorporate "self_compiler/sc_codegen.inc"
+
+algorithm genesis() -> whole
+begin
+    verify (arg_count() < 2) then
+        reveal("Usage: self_compiler <script>.lr");
+        exit_program(1);
+    conclude
+
+    datum input_file : series = arg_value(1);
+
+    // Check extension
+    datum len : whole = length(input_file);
+    verify (len < 3 or not (substring(input_file, len - 3, 3) == ".lr")) then
+        reveal("Error: Input file must have .lr extension");
+        exit_program(1);
+    conclude
+
+    verify (file_exists(input_file) == false) then
+        reveal("Error: File '" + input_file + "' not found");
+        exit_program(1);
+    conclude
+
+    // 1. Read Source & Preprocess
+    datum raw_code : series = file_read(input_file);
+    datum input_dir : series = get_dirname(input_file);
+
+    datum processed_code : series = preprocess_includes(raw_code, input_dir);
+
+    // 2. Lex
+    lexer_init(processed_code);
+    tokenize();
+
+    // 3. Parse
+    parser_init();
+    datum prog_node : whole = parse_program();
+
+    // 4. CodeGen
+    generate_code(prog_node);
+
+    // 5. Write Output
+    datum base_name : series = substring(input_file, 0, len - 3);
+    datum cpp_file : series = base_name + ".cpp";
+
+    file_write(cpp_file, codegen_output);
+
+    // 6. Compile with g++
+    datum output_bin : series = base_name;
+    datum cmd : series = "g++ " + cpp_file + " -o " + output_bin;
+
+    // Cleanup old binary if exists
+    verify (file_exists(output_bin)) then
+         file_remove(output_bin);
+    conclude
+
+    // DEBUG: Show command
+    // reveal("Executing: " + cmd);
+
+    execute_system(cmd);
+
+    // Check if compilation succeeded
+    verify (file_exists(output_bin) == false) then
+        reveal("Error: C++ Backend Failed. Check " + cpp_file + " for details.");
+        exit_program(1);
+    conclude
+
+    // Cleanup - remove cpp file if successful
+    file_remove(cpp_file);
+
+    result 0;
+end

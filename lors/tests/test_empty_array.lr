@@ -1,0 +1,6 @@
+algorithm genesis() -> whole
+begin
+    datum empty : sequence<whole> = [];
+    // Just compilation check
+    result 0;
+end

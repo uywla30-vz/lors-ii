@@ -1,0 +1,19 @@
+algorithm genesis() -> whole
+begin
+    datum s : series = "Hello World";
+
+    // Test substring
+    datum sub : series = substring(s, 0, 5);
+    reveal(sub); // Hello
+    verify (sub == "Hello") then
+        reveal("Substring Pass");
+    conclude
+
+    // Test char_at
+    datum c : whole = char_at(s, 6); // W
+    verify (c == 87) then // 'W' is 87
+        reveal("CharAt Pass");
+    conclude
+
+    result 0;
+end

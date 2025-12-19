@@ -1,0 +1,21 @@
+algorithm genesis() -> whole
+begin
+    datum a : whole = 100;
+    datum b : whole = 7;
+
+    datum sum : whole = a + b;
+    datum diff : whole = a - b;
+    datum prod : whole = a * b;
+    datum quot : whole = a / b;
+
+    reveal(sum);
+    reveal(diff);
+    reveal(prod);
+    reveal(quot);
+
+    datum f1 : precise = 3.5;
+    datum f2 : precise = 2.0;
+    reveal(f1 * f2);
+
+    result 0;
+end

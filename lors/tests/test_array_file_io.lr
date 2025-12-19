@@ -1,0 +1,12 @@
+algorithm genesis() -> whole
+begin
+    datum filename : series = "array_dump.txt";
+    datum content : series = "1, 2, 3";
+    file_write(filename, content);
+
+    datum read : series = file_read(filename);
+    reveal(read);
+
+    execute_system("rm array_dump.txt");
+    result 0;
+end

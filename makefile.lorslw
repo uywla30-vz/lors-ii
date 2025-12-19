@@ -1,0 +1,41 @@
+# Makefile for Lors Lightweight (Assembly) Compiler
+
+TWIN = ./twin
+COMPILER = ./lors_lw
+SOURCES = lors_lw_src/lors_lw.lr lors_lw_src/ss_tokens.inc lors_lw_src/ss_lexer.inc lors_lw_src/ss_parser.inc lors_lw_src/ss_ast.inc lors_lw_src/ss_utils.inc lors_lw_src/ss_codegen.inc
+
+all: lors_lw
+
+# Build the compiler using the existing bootstrapping compiler (twin)
+# Twin generates output in the same directory as input (lors_lw_src/lors_lw)
+# So we move it to root.
+lors_lw: $(SOURCES)
+	$(TWIN) lors_lw_src/lors_lw.lr
+	mv lors_lw_src/lors_lw ./lors_lw
+
+# Test execution helper
+test_exec = @echo "--- Running $(1) ---"; ./$(1) || echo "FAILED"; echo ""
+
+# List of examples and tests
+EXAMPLES = lors/examples/hello lors/examples/calculation lors/examples/logic
+TESTS = $(basename $(wildcard lors/tests/*.lr))
+
+# Compilation Rule
+# lors_lw compiles .lr -> .s -> .o -> executable directly.
+%: %.lr lors_lw
+	$(COMPILER) $<
+
+# Full Test Target
+full_test: lors_lw $(EXAMPLES) $(TESTS)
+	@echo "=========================================================="
+	@echo "🚀 STARTING LORS_LW ASSEMBLY TESTS"
+	@echo "=========================================================="
+	$(foreach prog,$(EXAMPLES),$(call test_exec,$(prog)))
+	$(foreach prog,$(TESTS),$(call test_exec,$(prog)))
+	@echo "✅ TESTS COMPLETED"
+
+clean:
+	rm -f lors_lw lors_lw_src/lors_lw
+	rm -f lors/examples/*.o lors/examples/*.s
+	rm -f lors/tests/*.o lors/tests/*.s
+	rm -f $(EXAMPLES) $(TESTS)

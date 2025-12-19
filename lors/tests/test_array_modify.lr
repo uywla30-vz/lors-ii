@@ -1,0 +1,15 @@
+algorithm genesis() -> whole
+begin
+    datum arr : sequence<whole> = [1, 2, 3];
+    arr[1] = 99;
+    reveal(arr[1]); // 99
+
+    datum i : whole = 0;
+    cycle (i < 3) do
+        arr[i] = arr[i] * 2;
+        reveal(arr[i]);
+        i = i + 1;
+    conclude
+
+    result 0;
+end

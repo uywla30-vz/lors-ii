@@ -1,0 +1,7 @@
+incorporate "shared.inc"
+
+algorithm genesis() -> whole
+begin
+    reveal(shared_val); // 100
+    result 0;
+end

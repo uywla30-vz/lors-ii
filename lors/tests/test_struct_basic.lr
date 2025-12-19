@@ -1,0 +1,18 @@
+structure Point
+begin
+    datum x : whole;
+    datum y : whole;
+end
+
+algorithm genesis() -> whole
+begin
+    datum p : Point = Point(10, 20);
+    reveal(p.x);
+    reveal(p.y);
+
+    verify (p.x == 10 and p.y == 20) then
+        reveal("Struct Basic Pass");
+    conclude
+
+    result 0;
+end

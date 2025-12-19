@@ -1,0 +1,11 @@
+algorithm genesis() -> whole
+begin
+    datum g : precise = 9.81;
+    datum t : precise = 2.5;
+    datum d : precise = 0.5 * g * power(t, 2.0);
+
+    reveal("Distance fallen:");
+    reveal(d); // ~30.65625
+
+    result 0;
+end

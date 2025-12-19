@@ -1,0 +1,15 @@
+algorithm genesis() -> whole
+begin
+    datum count : whole = arg_count();
+    // Default 1 arg is the program name
+    verify (count < 2) then
+        reveal("No args provided");
+        result 0;
+    conclude
+
+    datum arg1 : series = arg_value(1);
+    reveal("First arg:");
+    reveal(arg1);
+
+    result 0;
+end

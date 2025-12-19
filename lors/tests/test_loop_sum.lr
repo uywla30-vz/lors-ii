@@ -1,0 +1,11 @@
+algorithm genesis() -> whole
+begin
+    datum i : whole = 0;
+    datum sum : whole = 0;
+    cycle (i < 5) do
+        sum = sum + i;
+        i = i + 1;
+    conclude
+    reveal(sum);
+    result 0;
+end

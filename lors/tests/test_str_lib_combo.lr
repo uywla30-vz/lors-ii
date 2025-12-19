@@ -1,0 +1,18 @@
+algorithm genesis() -> whole
+begin
+    datum input : series = "racecar";
+    datum rev : series = reverse(input);
+
+    verify (input == rev) then
+        reveal("Palindrome Detected");
+    conclude
+
+    // Test conversion
+    datum num : whole = 123;
+    datum s : series = to_string(num);
+    verify (s == "123") then
+        reveal("Conversion Pass");
+    conclude
+
+    result 0;
+end

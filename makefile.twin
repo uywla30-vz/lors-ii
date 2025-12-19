@@ -1,0 +1,93 @@
+# Define la ubicación de tu compilador
+COMPILER = ./twin
+
+# Directorios que contienen los archivos fuente Y los ejecutables
+EXAMPLES_DIR = lors/examples
+TESTS_DIR = lors/tests
+
+# --- Definición de Fuentes y Objetivos ---
+
+# 1. Lista de todos los archivos fuente (.lr), excluyendo shared.inc
+EXAMPLES_SOURCES := $(wildcard $(EXAMPLES_DIR)/*.lr)
+TESTS_SOURCES := $(filter-out $(TESTS_DIR)/shared.inc, $(wildcard $(TESTS_DIR)/*.lr))
+
+# 2. Lista de ejecutables (NOMBRES sin la extensión .lr y prefijados con su directorio fuente)
+EXECUTABLES_FULL_PATH := $(patsubst %.lr, %, $(EXAMPLES_SOURCES))
+EXECUTABLES_FULL_PATH += $(patsubst %.lr, %, $(TESTS_SOURCES))
+
+# ==============================================================================
+# Reglas Principales
+# ==============================================================================
+
+.PHONY: all clean examples tests run
+
+# Regla 'all': Compila todo.
+all: $(EXECUTABLES_FULL_PATH)
+	@echo "✨ Compilación de todos los ejemplos y tests completada en directorios fuente."
+
+# ==============================================================================
+# Reglas de Compilación Genéricas (Compila y guarda en el mismo directorio)
+# ==============================================================================
+
+# Regla para COMPILAR EJEMPLOS: lors/examples/NOMBRE depende de lors/examples/NOMBRE.lr
+$(EXAMPLES_DIR)/%: $(EXAMPLES_DIR)/%.lr
+	@echo "Compilando EJEMPLO: $< -> $@"
+	$(COMPILER) $< -o $@
+
+# Regla para COMPILAR TESTS: lors/tests/NOMBRE depende de lors/tests/NOMBRE.lr
+$(TESTS_DIR)/%: $(TESTS_DIR)/%.lr
+	@echo "Compilando TEST: $< -> $@"
+	$(COMPILER) $< -o $@
+
+# ==============================================================================
+# Reglas de Ejecución y Limpieza
+# ==============================================================================
+
+# Regla 'run': Ejecuta todos los programas compilados
+run: all
+	@echo ""
+	@echo "=========================================================="
+	@echo "🚀 INICIANDO EJECUCIÓN DE TODOS LOS PROGRAMAS COMPILADOS"
+	@echo "=========================================================="
+	
+	# Iteramos sobre la lista de ejecutables en sus directorios fuente
+	@for exe in $(EXECUTABLES_FULL_PATH); do \
+		echo "--- Ejecutando: $$exe ---"; \
+		chmod +x $$exe; \
+		\
+		if echo "$$exe" | grep -q "test_calculator"; then \
+			echo "Entrada simulada: 1, 10, 20"; \
+			printf "1\n10\n20\n" | ./$$exe; \
+		elif echo "$$exe" | grep -q "test_string_input"; then \
+			echo "Entrada simulada: HelloInput"; \
+			printf "HelloInput\n" | ./$$exe; \
+		elif echo "$$exe" | grep -q "test_cli_args_basic"; then \
+			echo "Argumentos CLI: arg1 arg2"; \
+			./$$exe arg1 arg2; \
+		elif echo "$$exe" | grep -q "test_cli_args_usage"; then \
+			echo "Argumentos CLI: myargument"; \
+			./$$exe myargument; \
+		else \
+			./$$exe; \
+		fi; \
+		\
+		if [ $$? -ne 0 ]; then \
+			echo "⚠️ ERROR: La ejecución de $$exe falló."; \
+		fi; \
+		echo ""; \
+	done
+	@echo "=========================================================="
+	@echo "✅ EJECUCIÓN COMPLETA"
+
+# Regla 'examples': Compila solo los ejemplos
+examples: $(filter $(EXAMPLES_DIR)/%, $(EXECUTABLES_FULL_PATH))
+	@echo "✅ Compilación de ejemplos completada."
+
+# Regla 'tests': Compila solo los tests
+tests: $(filter $(TESTS_DIR)/%, $(EXECUTABLES_FULL_PATH))
+	@echo "✅ Compilación de tests completada."
+
+# Regla 'clean': Elimina los ejecutables (sin la extensión .lr) de los directorios fuente
+clean:
+	@echo "🧹 Limpiando ejecutables..."
+	-rm -f $(EXECUTABLES_FULL_PATH)

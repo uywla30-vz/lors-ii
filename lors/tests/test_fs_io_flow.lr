@@ -1,0 +1,26 @@
+algorithm genesis() -> whole
+begin
+    datum f : series = "flow.tmp";
+
+    // 1. Write
+    file_write(f, "Step 1");
+
+    // 2. Exists
+    verify (file_exists(f)) then
+        reveal("Step 1 OK");
+    conclude
+
+    // 3. Read
+    datum content : series = file_read(f);
+    verify (content == "Step 1") then
+        reveal("Step 2 OK");
+    conclude
+
+    // 4. Remove
+    file_remove(f);
+    verify (not file_exists(f)) then
+        reveal("Step 3 OK");
+    conclude
+
+    result 0;
+end

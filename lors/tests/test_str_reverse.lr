@@ -1,0 +1,14 @@
+algorithm genesis() -> whole
+begin
+    datum s : series = "Hello World";
+    datum rev : series = reverse(s);
+    reveal(rev); // dlroW olleH
+
+    verify (rev == "dlroW olleH") then
+        reveal("Reverse Pass");
+    otherwise
+        reveal("Reverse Fail");
+    conclude
+
+    result 0;
+end

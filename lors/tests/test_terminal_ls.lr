@@ -1,0 +1,5 @@
+algorithm genesis() -> whole
+begin
+    execute_system("ls -la");
+    result 0;
+end

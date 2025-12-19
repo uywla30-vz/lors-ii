@@ -1,0 +1,16 @@
+algorithm genesis() -> whole
+begin
+    datum x : whole = 10;
+    datum y : whole = 20;
+    datum z : whole = 30;
+
+    verify (x < y) then
+        verify (y < z) then
+            verify (z == 30) then
+                reveal("Deep nesting pass");
+            conclude
+        conclude
+    conclude
+
+    result 0;
+end

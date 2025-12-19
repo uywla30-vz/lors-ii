@@ -1,0 +1,20 @@
+structure Box
+begin
+    datum width : whole;
+    datum height : whole;
+end
+
+algorithm genesis() -> whole
+begin
+    datum b : Box = Box(100, 200);
+    reveal(b.width); // 100
+
+    b.width = 50;
+    reveal(b.width); // 50
+
+    verify (b.width == 50) then
+        reveal("Struct Modify Pass");
+    conclude
+
+    result 0;
+end

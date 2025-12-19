@@ -1,0 +1,12 @@
+algorithm genesis() -> whole
+begin
+    datum a : whole = 10;
+    // We now have % support
+    datum rem : whole = a % 2;
+    verify (rem == 0) then
+        reveal("Even");
+    otherwise
+        reveal("Odd");
+    conclude
+    result 0;
+end

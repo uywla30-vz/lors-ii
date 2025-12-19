@@ -1,0 +1,13 @@
+algorithm genesis() -> whole
+begin
+    datum count : whole = arg_count();
+    reveal(count);
+
+    datum i : whole = 0;
+    cycle (i < count) do
+        reveal(arg_value(i));
+        i = i + 1;
+    conclude
+
+    result 0;
+end

@@ -1,0 +1,7 @@
+algorithm genesis() -> whole
+begin
+    datum x : precise = 3.14159;
+    datum y : precise = cosine(x); // ~ -1
+    reveal(y);
+    result 0;
+end

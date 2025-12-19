@@ -1,0 +1,21 @@
+algorithm genesis() -> whole
+begin
+    datum filename : series = "test_data.txt";
+    datum content : series = "Hello File I/O";
+
+    file_write(filename, content);
+
+    datum read_back : series = file_read(filename);
+    reveal(read_back);
+
+    verify (read_back == content) then
+        reveal("File read/write successful");
+    otherwise
+        reveal("File content mismatch");
+    conclude
+
+    // Cleanup
+    execute_system("rm test_data.txt");
+
+    result 0;
+end

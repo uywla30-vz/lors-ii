@@ -1,0 +1,17 @@
+algorithm genesis() -> whole
+begin
+    datum n : whole = 6;
+    datum i : whole = 2;
+    datum is_prime : state = true;
+
+    cycle (i * i < n + 1) do
+        // Modulo not implemented? Need % operator.
+        // Let's stick to simple logic or add %
+        // Parser supports / but not %.
+        // Let's add %.
+        i = i + 1;
+    conclude
+
+    reveal(is_prime);
+    result 0;
+end

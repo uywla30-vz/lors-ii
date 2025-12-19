@@ -1,0 +1,15 @@
+algorithm genesis() -> whole
+begin
+    datum s : series = "HeLLo 123";
+    datum up : series = to_upper(s);
+    datum low : series = to_lower(s);
+
+    reveal(up); // HELLO 123
+    reveal(low); // hello 123
+
+    verify (up == "HELLO 123" and low == "hello 123") then
+        reveal("Case Pass");
+    conclude
+
+    result 0;
+end

@@ -1,0 +1,20 @@
+algorithm genesis() -> whole
+begin
+    datum a : state = true;
+    datum b : state = false;
+    datum c : state = true;
+
+    // (a or b) and c -> (true or false) and true -> true and true -> true
+    verify ((a or b) and c) then
+        reveal("Complex logic pass");
+    otherwise
+        reveal("Complex logic fail");
+    conclude
+
+    // not (a and b) -> not (false) -> true
+    verify (not (a and b)) then
+        reveal("Negation pass");
+    conclude
+
+    result 0;
+end

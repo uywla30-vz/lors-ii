@@ -1,0 +1,14 @@
+algorithm genesis() -> whole
+begin
+    datum char_A : whole = 65;
+    datum char_a : whole = 97;
+    datum char_1 : whole = 49;
+
+    verify (is_upper(char_A) and is_lower(char_a) and is_digit(char_1)) then
+        reveal("Type Check Pass");
+    otherwise
+        reveal("Type Check Fail");
+    conclude
+
+    result 0;
+end

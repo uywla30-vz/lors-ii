@@ -1,0 +1,60 @@
+# ==============================================================================
+# UNIVERSAL MAKEFILE: Secuencia de Construcción y Prueba
+# Este Makefile orquesta los makefiles existentes para un ciclo completo de:
+# 1. Pruebas iniciales del compilador de referencia (Python).
+# 2. Prueba y limpieza del compilador bootstrap.
+# 3. Autocompilación (generación de ./twin).
+# 4. Ejecución final de todos los tests con ./twin.
+# ==============================================================================
+
+.PHONY: full_test python_test bootstrap_test self_compile twin_run clean_all
+
+# La secuencia principal ejecuta todas las fases en orden.
+full_test: python_test bootstrap_test self_compile twin_run clean_all
+	@echo "=================================================================="
+	@echo "✅ CICLO COMPLETO DE CONSTRUCCIÓN Y PRUEBA UNIVERSAL FINALIZADO CON ÉXITO."
+	@echo "=================================================================="
+
+# ------------------------------------------------------------------------------
+# 1. Pruebas con el Compilador de Referencia (Python)
+# ------------------------------------------------------------------------------
+python_test:
+	@echo "--- FASE 1: Limpieza y Prueba del Compilador Python ---"
+	make -f makefile.pythoncompiler
+	make -f makefile.pythoncompiler test
+	make -f makefile.pythoncompiler clean
+
+# ------------------------------------------------------------------------------
+# 2. Pruebas del Compilador Bootstrap
+# ------------------------------------------------------------------------------
+bootstrap_test:
+	@echo "--- FASE 2: Prueba del Compilador Bootstrap (lors_bootstrap) ---"
+	make -f Makefile.bootstrap clean
+	# Ejecutar test_bootstrap y luego limpiar de nuevo (según la secuencia solicitada)
+	make -f Makefile.bootstrap test_bootstrap
+	make -f Makefile.bootstrap clean
+
+# ------------------------------------------------------------------------------
+# 3. Autocompilación (Generación de ./twin)
+# ------------------------------------------------------------------------------
+self_compile:
+	@echo "--- FASE 3: Generando Compilador Twin (Autocompilación) ---"
+	# Ejecuta la versión bootstrap para compilar twin.lr y generar ./twin
+	./lors_bootstrap twin.lr
+
+# ------------------------------------------------------------------------------
+# 4. Pruebas Finales con el Compilador Generado
+# ------------------------------------------------------------------------------
+twin_run:
+	@echo "--- FASE 4: Ejecutando Tests con el Compilador Generado (./twin) ---"
+	# Ejecuta todos los tests con el compilador que acabamos de generar
+	make -f makefile.twin run
+
+# ------------------------------------------------------------------------------
+# 5. Limpieza Final
+# ------------------------------------------------------------------------------
+clean_all:
+	@echo "--- FASE 5: Limpieza de Binarios Generados por ./twin ---"
+	# Limpia los binarios generados por makefile.twin
+	make -f makefile.twin clean
+	@echo "------------------------------------------------------------------"

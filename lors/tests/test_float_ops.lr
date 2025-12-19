@@ -1,0 +1,7 @@
+algorithm genesis() -> whole
+begin
+    datum a : precise = 5.5;
+    datum b : precise = 2.0;
+    reveal(a + b * 2.0); // 9.5
+    result 0;
+end
