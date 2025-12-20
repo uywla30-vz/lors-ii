@@ -6,6 +6,7 @@ datum tr_last_reg : series = "";
 datum tr_last_type : series = "";
 datum current_block_label : series = "entry";
 datum block_terminated : state = false;
+datum tr_debug : state = false;
 
 // Forward declarations
 algorithm translate_expr(node_idx : whole) -> void;
@@ -98,6 +99,7 @@ end
 
 algorithm scan_definitions(prog_idx : whole) -> void
 begin
+    // Removed debug prints to reduce noise
     datum prog : ASTNode = node_heap[prog_idx];
     datum i : whole = 0;
     datum children : sequence<whole> = prog.children;
@@ -445,6 +447,10 @@ begin
     datum node : ASTNode = node_heap[node_idx];
     datum k : whole = node.kind;
 
+    verify (tr_debug) then
+        reveal("  Stmt Kind: " + to_string(k));
+    conclude
+
     verify (k == NODE_VAR_DECL) then
         datum type : series = map_node_type(node.type_node);
         datum reg : series = "";
@@ -657,6 +663,7 @@ verify (k == NODE_ARRAY_ASSIGN) then
     conclude
 
     verify (k == NODE_WHILE) then
+        verify (tr_debug) then reveal("  WHILE START"); conclude
         datum l_cond : series = llvm_next_label();
         datum l_body : series = llvm_next_label();
         datum l_end : series = llvm_next_label();
@@ -665,11 +672,13 @@ verify (k == NODE_ARRAY_ASSIGN) then
         llvm_emit_br_update(l_cond);
         llvm_emit_label_update(l_cond);
 
+        verify (tr_debug) then reveal("  WHILE Analysis Scan"); conclude
         datum targets : sequence<series>;
         targets = analysis_scan_assignments(node.then_branch, targets);
 
         datum phis : sequence<series>;
         datum start_vals : sequence<series>;
+        datum phi_vars : sequence<series>;
 
         datum t : whole = 0;
         cycle (t < length(targets)) do
@@ -682,6 +691,7 @@ verify (k == NODE_ARRAY_ASSIGN) then
                  datum phi : series = llvm_next_reg();
                  mem_update_var_ssa(tname, phi);
                  append(phis, phi);
+                 append(phi_vars, tname);
             conclude
             t = t + 1;
         conclude
@@ -700,15 +710,10 @@ verify (k == NODE_ARRAY_ASSIGN) then
 
         datum end_vals : sequence<series>;
         t = 0;
-        datum phi_idx_scan : whole = 0;
-        cycle (t < length(targets)) do
-             datum tname : series = targets[t];
-             datum type : series = mem_get_var_type(tname);
-             verify (type != "unknown" and not (is_struct_type(type) or type == "sequence")) then
-                 datum val_end : series = mem_get_var_ssa(tname);
-                 append(end_vals, val_end);
-                 phi_idx_scan = phi_idx_scan + 1;
-             conclude
+        cycle (t < length(phi_vars)) do
+             datum tname : series = phi_vars[t];
+             datum val_end : series = mem_get_var_ssa(tname);
+             append(end_vals, val_end);
              t = t + 1;
         conclude
 
@@ -716,25 +721,23 @@ verify (k == NODE_ARRAY_ASSIGN) then
         llvm_code = saved_code;
 
         t = 0;
-        datum phi_idx : whole = 0;
-        cycle (t < length(targets)) do
-             datum tname : series = targets[t];
+        cycle (t < length(phi_vars)) do
+             datum tname : series = phi_vars[t];
              datum type : series = mem_get_var_type(tname);
-             verify (type != "unknown" and not (is_struct_type(type) or type == "sequence")) then
-                 datum phi_reg : series = phis[phi_idx];
-                 datum v_start : series = start_vals[phi_idx];
-                 datum v_end : series = end_vals[phi_idx];
 
-                 llvm_emit("  " + phi_reg + " = phi " + llvm_type_string(type) + " [ " + v_start + ", %" + l_pre + " ], [ " + v_end + ", %" + l_body_end + " ]");
+             datum phi_reg : series = phis[t];
+             datum v_start : series = start_vals[t];
+             datum v_end : series = end_vals[t];
 
-                 phi_idx = phi_idx + 1;
-             conclude
+             llvm_emit("  " + phi_reg + " = phi " + llvm_type_string(type) + " [ " + v_start + ", %" + l_pre + " ], [ " + v_end + ", %" + l_body_end + " ]");
+
              t = t + 1;
         conclude
 
         llvm_code = llvm_code + body_str;
 
         llvm_emit_label_update(l_end);
+        verify (tr_debug) then reveal("  WHILE END"); conclude
     conclude
 
     verify (k == NODE_BLOCK) then
@@ -1018,14 +1021,18 @@ end
 
 algorithm translate_program(prog_idx : whole) -> void
 begin
+    reveal("TP: Scanning definitions...");
     scan_definitions(prog_idx);
 
+    reveal("TP: Emitting runtime...");
     emit_llvm_runtime();
 
     // Emit Struct Definitions
+    reveal("TP: Emitting structs...");
     datum si : whole = 0;
     cycle (si < length(mem_defined_structs)) do
         datum info : StructInfo = mem_defined_structs[si];
+        reveal("  Struct: " + info.name);
         datum def : series = "%struct." + info.name + " = type { ";
         datum mi : whole = 0;
         cycle (mi < length(info.members)) do
@@ -1039,14 +1046,17 @@ begin
     conclude
 
     // Globals
+    reveal("TP: Emitting globals...");
     datum i : whole = 0;
     cycle (i < length(mem_global_vars)) do
         datum g : VarInfo = mem_global_vars[i];
+        reveal("  Global: " + g.name);
         llvm_emit_global("@" + g.name + " = global " + llvm_type_string(g.type_name) + " zeroinitializer");
         i = i + 1;
     conclude
 
     // Functions
+    reveal("TP: Emitting functions...");
     datum prog : ASTNode = node_heap[prog_idx];
     datum children : sequence<whole> = prog.children;
     i = 0;
@@ -1055,6 +1065,13 @@ begin
         verify (node_heap[idx].kind == NODE_FUNC_DECL) then
              datum fname : series = node_heap[idx].text_val;
              datum ret : series = map_node_type(node_heap[idx].type_node);
+             reveal("  Function: " + fname);
+
+             verify (fname == "tokenize" or fname == "preprocess_includes") then
+                 tr_debug = true;
+             otherwise
+                 tr_debug = false;
+             conclude
 
              // Main signature
              verify (fname == "genesis") then
@@ -1102,7 +1119,9 @@ begin
              conclude
 
              verify (node_heap[idx].then_branch != -1) then
+                 reveal("    Translating block for " + fname);
                  translate_block(node_heap[idx].then_branch);
+                 reveal("    Block translated for " + fname);
              conclude
 
              // Default return
