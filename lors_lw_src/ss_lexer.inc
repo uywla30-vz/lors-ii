@@ -148,6 +148,46 @@ begin
     add_token(TOKEN_STRING_LITERAL, text);
 end
 
+algorithm lex_operators(c : whole, next : whole) -> state
+begin
+    // 2-char operators
+    verify (c == 45 and next == 62) then // ->
+        add_token(TOKEN_ARROW, "->"); advance_char(); advance_char(); result true;
+    conclude
+    verify (c == 61 and next == 61) then // ==
+        add_token(TOKEN_EQ, "=="); advance_char(); advance_char(); result true;
+    conclude
+    verify (c == 33 and next == 61) then // !=
+        add_token(TOKEN_NEQ, "!="); advance_char(); advance_char(); result true;
+    conclude
+    verify (c == 62 and next == 61) then // >=
+        add_token(TOKEN_GE, ">="); advance_char(); advance_char(); result true;
+    conclude
+    verify (c == 60 and next == 61) then // <=
+        add_token(TOKEN_LE, "<="); advance_char(); advance_char(); result true;
+    conclude
+
+    // Single char
+    verify (c == 43) then add_token(TOKEN_PLUS, "+"); advance_char(); result true; conclude
+    verify (c == 45) then add_token(TOKEN_MINUS, "-"); advance_char(); result true; conclude
+    verify (c == 42) then add_token(TOKEN_STAR, "*"); advance_char(); result true; conclude
+    verify (c == 47) then add_token(TOKEN_SLASH, "/"); advance_char(); result true; conclude
+    verify (c == 37) then add_token(TOKEN_MODULO, "%"); advance_char(); result true; conclude
+    verify (c == 61) then add_token(TOKEN_ASSIGN, "="); advance_char(); result true; conclude
+    verify (c == 46) then add_token(TOKEN_DOT, "."); advance_char(); result true; conclude
+    verify (c == 58) then add_token(TOKEN_COLON, ":"); advance_char(); result true; conclude
+    verify (c == 59) then add_token(TOKEN_SEMICOLON, ";"); advance_char(); result true; conclude
+    verify (c == 44) then add_token(TOKEN_COMMA, ","); advance_char(); result true; conclude
+    verify (c == 40) then add_token(TOKEN_LPAREN, "("); advance_char(); result true; conclude
+    verify (c == 41) then add_token(TOKEN_RPAREN, ")"); advance_char(); result true; conclude
+    verify (c == 91) then add_token(TOKEN_LBRACKET, "["); advance_char(); result true; conclude
+    verify (c == 93) then add_token(TOKEN_RBRACKET, "]"); advance_char(); result true; conclude
+    verify (c == 62) then add_token(TOKEN_GT, ">"); advance_char(); result true; conclude
+    verify (c == 60) then add_token(TOKEN_LT, "<"); advance_char(); result true; conclude
+
+    result false;
+end
+
 algorithm tokenize() -> void
 begin
     cycle (lexer_pos < lexer_len) do
@@ -173,45 +213,10 @@ begin
             lex_string();
         // Operators
         otherwise
-            datum handled : state = false;
             datum next : whole = peek_char(1);
-
-            // 2-char operators
-            verify (not handled and c == 45 and next == 62) then // ->
-                add_token(TOKEN_ARROW, "->"); advance_char(); advance_char(); handled = true;
-            conclude
-            verify (not handled and c == 61 and next == 61) then // ==
-                add_token(TOKEN_EQ, "=="); advance_char(); advance_char(); handled = true;
-            conclude
-            verify (not handled and c == 33 and next == 61) then // !=
-                add_token(TOKEN_NEQ, "!="); advance_char(); advance_char(); handled = true;
-            conclude
-            verify (not handled and c == 62 and next == 61) then // >=
-                add_token(TOKEN_GE, ">="); advance_char(); advance_char(); handled = true;
-            conclude
-            verify (not handled and c == 60 and next == 61) then // <=
-                add_token(TOKEN_LE, "<="); advance_char(); advance_char(); handled = true;
-            conclude
-
-            // Single char
-            verify (not handled and c == 43) then add_token(TOKEN_PLUS, "+"); advance_char(); handled = true; conclude
-            verify (not handled and c == 45) then add_token(TOKEN_MINUS, "-"); advance_char(); handled = true; conclude
-            verify (not handled and c == 42) then add_token(TOKEN_STAR, "*"); advance_char(); handled = true; conclude
-            verify (not handled and c == 47) then add_token(TOKEN_SLASH, "/"); advance_char(); handled = true; conclude
-            verify (not handled and c == 37) then add_token(TOKEN_MODULO, "%"); advance_char(); handled = true; conclude
-            verify (not handled and c == 61) then add_token(TOKEN_ASSIGN, "="); advance_char(); handled = true; conclude
-            verify (not handled and c == 46) then add_token(TOKEN_DOT, "."); advance_char(); handled = true; conclude
-            verify (not handled and c == 58) then add_token(TOKEN_COLON, ":"); advance_char(); handled = true; conclude
-            verify (not handled and c == 59) then add_token(TOKEN_SEMICOLON, ";"); advance_char(); handled = true; conclude
-            verify (not handled and c == 44) then add_token(TOKEN_COMMA, ","); advance_char(); handled = true; conclude
-            verify (not handled and c == 40) then add_token(TOKEN_LPAREN, "("); advance_char(); handled = true; conclude
-            verify (not handled and c == 41) then add_token(TOKEN_RPAREN, ")"); advance_char(); handled = true; conclude
-            verify (not handled and c == 91) then add_token(TOKEN_LBRACKET, "["); advance_char(); handled = true; conclude
-            verify (not handled and c == 93) then add_token(TOKEN_RBRACKET, "]"); advance_char(); handled = true; conclude
-            verify (not handled and c == 62) then add_token(TOKEN_GT, ">"); advance_char(); handled = true; conclude
-            verify (not handled and c == 60) then add_token(TOKEN_LT, "<"); advance_char(); handled = true; conclude
-
-            verify (handled == false) then
+            verify (lex_operators(c, next)) then
+                // handled
+            otherwise
                 reveal("Error: Unexpected character: " + character(c) + " (" + to_string(c) + ") at line " + to_string(lexer_line));
                 exit_program(1);
             conclude

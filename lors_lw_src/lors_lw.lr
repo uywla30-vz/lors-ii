@@ -9,12 +9,14 @@ incorporate "traductor.inc"
 
 algorithm genesis() -> whole
 begin
+    reveal("Starting lors_lw...");
     verify (arg_count() < 2) then
         reveal("Usage: lors_lw <script>.lr");
         exit_program(1);
     conclude
 
     datum input_file : series = arg_value(1);
+    reveal("Input file: " + input_file);
 
     // Check extension
     datum len : whole = length(input_file);
@@ -29,27 +31,39 @@ begin
     conclude
 
     // 1. Read Source & Preprocess
+    reveal("Reading source file...");
     datum raw_code : series = file_read(input_file);
     datum input_dir : series = get_dirname(input_file);
-
+    reveal("Preprocessing includes...");
     datum processed_code : series = preprocess_includes(raw_code, input_dir);
+    reveal("Preprocess done. Length: " + to_string(length(processed_code)));
 
     // 2. Lex
+    reveal("Initializing Lexer...");
     lexer_init(processed_code);
+    reveal("Tokenizing...");
     tokenize();
+    reveal("Tokenization complete.");
 
     // 3. Parse
+    reveal("Initializing Parser...");
     parser_init();
+    reveal("Parsing program...");
     datum prog_node : whole = parse_program();
+    reveal("Parsing complete. AST Root: " + to_string(prog_node));
 
     // 4. CodeGen (LLVM IR)
+    reveal("Generating LLVM IR...");
     translate_program(prog_node);
+    reveal("Code generation complete.");
 
     // 5. Write Output
     datum base_name : series = substring(input_file, 0, len - 3);
     datum asm_file : series = base_name + ".ll";
 
+    reveal("Writing output to " + asm_file);
     file_write(asm_file, codegen_output);
+    reveal("Done.");
 
     result 0;
 end
